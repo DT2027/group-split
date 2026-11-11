@@ -33,6 +33,15 @@ python -m http.server 8080
 
 然后访问 `http://localhost:8080`。
 
+## 🔄 修改后重新发布
+
+GitHub Pages 对静态资源统一返回 `Cache-Control: max-age=600`（缓存 10 分钟）。因此修改 `styles.css` / `app.js` 后，请同步把 `index.html` 里的版本号改掉，浏览器即可立刻拿到新版本：
+
+```html
+<link rel="stylesheet" href="styles.css?v=20261111" />
+<script src="app.js?v=20261111"></script>
+```
+
 ## 📁 目录结构
 
 ```
