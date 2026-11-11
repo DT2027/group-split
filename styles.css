@@ -30,6 +30,9 @@
 
 * { box-sizing: border-box; }
 
+/* hidden 属性必须压过组件自身的 display，否则 .result-flag 之类会一直显示 */
+[hidden] { display: none !important; }
+
 html, body { height: 100%; }
 
 body {
