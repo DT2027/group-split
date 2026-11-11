@@ -1,4 +1,4 @@
-# ⚡ 分组派对 · GROUP//SPLIT
+# ⚡ 分组 · GROUP//SPLIT
 
 一个**多巴胺配色 × 赛博朋克风格**的在线随机分组工具：粘贴名单，设置每组人数，一键洗牌分组。
 
@@ -14,6 +14,7 @@
 - **一键复制**：把分组结果按纯文本复制到剪贴板
 - **本地保存**：名单、分组结果与历史记录都存在浏览器 localStorage，刷新不丢、不上传任何服务器
 - **响应式**：手机、平板、桌面都能正常使用
+- **亮色界面**：浅紫白底 + 高饱和多巴胺霓虹描边，白天看不刺眼
 
 ## 🛠 技术栈
 
@@ -38,8 +39,8 @@ python -m http.server 8080
 GitHub Pages 对静态资源统一返回 `Cache-Control: max-age=600`（缓存 10 分钟）。因此修改 `styles.css` / `app.js` 后，请同步把 `index.html` 里的版本号改掉，浏览器即可立刻拿到新版本：
 
 ```html
-<link rel="stylesheet" href="styles.css?v=2" />
-<script src="app.js?v=2"></script>
+<link rel="stylesheet" href="styles.css?v=3" />
+<script src="app.js?v=3"></script>
 ```
 
 ## 📁 目录结构
