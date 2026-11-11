@@ -143,13 +143,17 @@
   }
 
   function buildGroups(names, size) {
-    var count = groupCountBySize(names.length, size);
+    // 先整体洗牌，再按「每组人数」依次成块切分：
+    // 每组满 size 人，最后一组拿剩余的人，因此各组人数最多差 1。
     var shuffled = shuffle(names);
     var groups = [];
-    for (var i = 0; i < count; i++) {
-      groups.push({ id: ++uid, name: '第 ' + (i + 1) + ' 组', members: [] });
+    for (var i = 0; i < shuffled.length; i += size) {
+      groups.push({
+        id: ++uid,
+        name: '第 ' + (groups.length + 1) + ' 组',
+        members: shuffled.slice(i, i + size)
+      });
     }
-    shuffled.forEach(function (n, i) { groups[i % count].members.push(n); });
     return groups;
   }
 
@@ -269,10 +273,8 @@
       return;
     }
     var count = groupCountBySize(n, size);
-    var base = Math.floor(n / count);
-    var extra = n % count;
     var sizes = [];
-    for (var i = 0; i < count; i++) sizes.push(base + (i < extra ? 1 : 0));
+    for (var i = 0; i < count; i++) sizes.push(Math.min(size, n - i * size));
     el.setupHint.innerHTML = '共 <b>' + n + '</b> 人 · 每组 <span class="hl">' + size + '</span> 人 · 将分成 <b>' + count +
       '</b> 组（' + sizes.join(' / ') + ' 人）';
   }
