@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>分组派对 · 在线随机分组工具</title>
+<meta name="description" content="多巴胺赛博朋克风在线分组工具：输入名单，设置每组人数，一键随机洗牌分组，支持手动微调、组名编辑与历史记录。纯前端运行，数据仅存本地浏览器。" />
+<meta name="theme-color" content="#07040d" />
+<meta property="og:title" content="分组派对 · 在线随机分组工具" />
+<meta property="og:description" content="输入名单，设置每组人数，一键随机洗牌分组。" />
+<meta property="og:type" content="website" />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div class="bg-grid" aria-hidden="true"></div>
+<div class="bg-orbs" aria-hidden="true">
+  <span class="orb orb-1"></span>
+  <span class="orb orb-2"></span>
+  <span class="orb orb-3"></span>
+  <span class="orb orb-4"></span>
+</div>
+<div class="scanlines" aria-hidden="true"></div>
+
+<header class="site-header">
+  <div class="brand">
+    <span class="brand-logo" aria-hidden="true">⚡</span>
+    <div class="brand-text">
+      <h1 class="glitch" data-text="分组派对">分组派对</h1>
+      <p class="tagline">GROUP//SPLIT · 输入名单 · 设置每组人数 · 一键洗牌</p>
+    </div>
+  </div>
+  <span class="badge-local">本地运行 · 数据不上传</span>
+</header>
+
+<main class="layout">
+  <div class="col col-left">
+    <!-- 名单 -->
+    <section class="card" aria-labelledby="t-names">
+      <h2 class="card-title" id="t-names"><span class="step">01</span>名单</h2>
+      <textarea id="namesInput" rows="12" spellcheck="false" autocomplete="off"
+        placeholder="每行一个名字，例如：&#10;张三&#10;李四&#10;王五&#10;&#10;也支持用逗号、顿号分隔：甲，乙，丙"></textarea>
+      <div class="input-actions">
+        <button type="button" class="btn btn-ghost btn-sm" id="sampleBtn">示例名单</button>
+        <button type="button" class="btn btn-ghost btn-sm" id="clearBtn">清空</button>
+        <span class="count-hint" id="countHint">共 0 人</span>
+      </div>
+    </section>
+
+    <!-- 设置 -->
+    <section class="card" aria-labelledby="t-setup">
+      <h2 class="card-title" id="t-setup"><span class="step">02</span>分组设置</h2>
+
+      <label class="field" for="groupSize">
+        <span class="field-label">每组人数</span>
+        <span class="field-ctrl">
+          <button type="button" class="step-btn" id="sizeMinus" aria-label="每组人数减一">−</button>
+          <input type="number" id="groupSize" min="1" max="999" step="1" value="5" inputmode="numeric" aria-label="每组人数" />
+          <button type="button" class="step-btn" id="sizePlus" aria-label="每组人数加一">+</button>
+        </span>
+      </label>
+
+      <p class="setup-hint" id="setupHint">输入名单后即可开始分组</p>
+
+      <div class="setup-actions">
+        <button type="button" class="btn btn-primary btn-lg" id="splitBtn">开 始 分 组</button>
+        <button type="button" class="btn btn-ghost" id="reshuffleBtn" disabled>重新分组</button>
+      </div>
+      <p class="kbd-hint">提示：在名单框按 <kbd>Ctrl</kbd> + <kbd>Enter</kbd> 快速分组</p>
+    </section>
+  </div>
+
+  <div class="col col-right">
+    <!-- 结果 -->
+    <section class="card card-result" aria-labelledby="t-result">
+      <h2 class="card-title" id="t-result">
+        <span class="step">03</span>分组结果
+        <span class="title-tools">
+          <button type="button" class="btn btn-ghost btn-sm" id="addGroupBtn" disabled>＋ 新增组</button>
+          <button type="button" class="btn btn-ghost btn-sm" id="copyBtn" disabled>复制结果</button>
+        </span>
+      </h2>
+      <p class="result-flag" id="resultFlag" hidden>已手动微调</p>
+      <div class="groups" id="groups"></div>
+      <p class="result-empty" id="resultEmpty">还没有分组结果 · 在左侧设置每组人数后点击「开始分组」</p>
+    </section>
+
+    <!-- 历史 -->
+    <section class="card" aria-labelledby="t-history">
+      <h2 class="card-title" id="t-history">
+        <span class="step">04</span>历史记录
+        <span class="title-tools">
+          <button type="button" class="btn btn-ghost btn-sm" id="clearHistoryBtn">清空</button>
+        </span>
+      </h2>
+      <ul class="history" id="history"></ul>
+      <p class="history-empty" id="historyEmpty">还没有历史记录 · 每次分组后自动保存</p>
+    </section>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <p>纯前端实现 · 零依赖零构建 · 随机数由浏览器本地生成 · 数据仅保存在你的浏览器</p>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="move-pop" id="movePop" hidden></div>
+
+<script src="app.js"></script>
+</body>
+</html>
