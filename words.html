@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>秘密词语 · 每人只看到自己的词</title>
+<meta name="description" content="在线秘密词语分配：导入词库，按组分配词语，发布一个链接，每个人打开链接输入姓名即可领取属于自己的那个词。" />
+<meta name="theme-color" content="#f3f1fc" />
+<meta name="robots" content="noindex" />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔑</text></svg>" />
+<link rel="stylesheet" href="styles.css?v=7" />
+</head>
+<body>
+<div class="bg-grid" aria-hidden="true"></div>
+<div class="bg-orbs" aria-hidden="true">
+  <span class="orb orb-1"></span>
+  <span class="orb orb-2"></span>
+  <span class="orb orb-3"></span>
+  <span class="orb orb-4"></span>
+</div>
+
+<header class="site-header">
+  <div class="brand">
+    <span class="brand-logo brand-logo-key" aria-hidden="true">🔑</span>
+    <div class="brand-text">
+      <h1>秘密词语</h1>
+      <p class="tagline">SECRET//WORDS · 每人只看到自己的那个词</p>
+    </div>
+  </div>
+  <a class="btn btn-ghost btn-sm" href="index.html" id="backLink">← 返回分组</a>
+</header>
+
+<main class="layout words-layout">
+
+  <!-- ========== 组织者视图 ========== -->
+  <div class="words-view" id="organizerView">
+    <div class="words-col">
+
+      <section class="card" aria-labelledby="t-src">
+        <h2 class="card-title" id="t-src"><span class="step">01</span>分组来源</h2>
+        <div id="groupSource"></div>
+      </section>
+
+      <section class="card" aria-labelledby="t-words">
+        <h2 class="card-title" id="t-words"><span class="step">02</span>导入词库</h2>
+
+        <div class="file-drop" id="fileDrop">
+          <input type="file" id="wordFile" accept=".xlsx,.xls,.csv,.txt" class="visually-hidden" />
+          <span class="file-drop-main">点击选择文件</span>
+          <span class="file-drop-sub">.xlsx 每个单元格 = 一个词 · 也支持 .csv / .txt</span>
+        </div>
+
+        <div class="or-line"><span>或者直接粘贴</span></div>
+
+        <textarea id="wordText" rows="6" spellcheck="false" autocomplete="off"
+          placeholder="每行一个词，例如：&#10;excel&#10;华为&#10;苹果"></textarea>
+
+        <div class="input-actions">
+          <button type="button" class="btn btn-ghost btn-sm" id="loadTextBtn">使用粘贴的词语</button>
+          <button type="button" class="btn btn-ghost btn-sm" id="clearWordsBtn">清空词库</button>
+          <span class="count-hint" id="wordCount">词库 0 个</span>
+        </div>
+      </section>
+
+      <section class="card" aria-labelledby="t-pub">
+        <h2 class="card-title" id="t-pub"><span class="step">03</span>生成发布链接</h2>
+        <p class="setup-hint" id="publishHint">先在上面准备分组和词库</p>
+        <button type="button" class="btn btn-primary btn-lg" id="publishBtn" disabled>生成分发链接</button>
+
+        <div class="link-box" id="linkBox" hidden>
+          <input type="text" id="publishLink" readonly aria-label="发布链接" />
+          <button type="button" class="btn btn-ghost btn-sm" id="copyLinkBtn">复制</button>
+        </div>
+        <p class="sizes-total" id="linkSize"></p>
+
+        <div class="assign-preview" id="assignPreview" hidden></div>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- ========== 参与者视图 ========== -->
+  <div class="words-view participant-view" id="participantView" hidden>
+    <section class="card card-participant">
+      <h2 class="card-title"><span class="step key-step" aria-hidden="true">🔑</span>领取你的词语</h2>
+      <p class="p-intro">输入你的姓名，查看这个链接专属分配给你的那一个词。</p>
+
+      <label class="field" for="pName">
+        <span class="field-label">你的姓名</span>
+        <span class="field-ctrl p-name-ctrl">
+          <input type="text" id="pName" placeholder="名单里的姓名" autocomplete="off" spellcheck="false" />
+        </span>
+      </label>
+
+      <button type="button" class="btn btn-primary btn-lg" id="pSubmit">查看我的词</button>
+      <p class="setup-hint" id="pHint"></p>
+
+      <div class="word-card" id="pResult" hidden>
+        <div class="word-label">你的词语</div>
+        <div class="word-text" id="pWord"></div>
+        <div class="word-group" id="pGroup"></div>
+        <p class="word-tip">记住它 —— 别让别人看到你的屏幕</p>
+        <button type="button" class="btn btn-ghost btn-sm" id="pBackBtn">换个人查询</button>
+      </div>
+    </section>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <p>纯前端实现 · 零依赖零构建（仅解析 Excel 时按需加载 SheetJS） · 词库与分配结果不经过任何服务器</p>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="words.js?v=7"></script>
+</body>
+</html>
