@@ -1,5 +1,5 @@
 /* ============================================================
-   秘密词语 · SECRET//WORDS
+   分词 · WORD//SPLIT
    组织者：导入词库 → 按组分配 → 生成分发链接
    参与者：打开链接 → 输入姓名 → 领取自己的那个词
    ============================================================ */
@@ -444,7 +444,7 @@
     el.organizer.hidden = false;
     el.participant.hidden = true;
     el.backLink.hidden = false;
-    document.title = '秘密词语 · 每人只看到自己的词';
+    document.title = '分词 · 每人只看到自己的词';
     renderGroupSource();
   }
 
