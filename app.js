@@ -1,5 +1,5 @@
 /* ============================================================
-   分组派对 · GROUP//SPLIT
+   分组 · GROUP//SPLIT
    纯前端分组工具 · 零依赖
    ============================================================ */
 (function () {
@@ -21,9 +21,23 @@
     countHint:  document.getElementById('countHint'),
     sample:     document.getElementById('sampleBtn'),
     clear:      document.getElementById('clearBtn'),
+
+    modeAuto:   document.getElementById('modeAuto'),
+    modeCustom: document.getElementById('modeCustom'),
+    panelAuto:  document.getElementById('panelAuto'),
+    panelCustom:document.getElementById('panelCustom'),
+
     size:       document.getElementById('groupSize'),
     sizeMinus:  document.getElementById('sizeMinus'),
     sizePlus:   document.getElementById('sizePlus'),
+
+    groupCount: document.getElementById('groupCount'),
+    countMinus: document.getElementById('countMinus'),
+    countPlus:  document.getElementById('countPlus'),
+    sizesList:  document.getElementById('sizesList'),
+    sizesTotal: document.getElementById('sizesTotal'),
+    evenBtn:    document.getElementById('evenBtn'),
+
     setupHint:  document.getElementById('setupHint'),
     split:      document.getElementById('splitBtn'),
     reshuffle:  document.getElementById('reshuffleBtn'),
@@ -42,6 +56,9 @@
   var state = {
     names: [],
     size: 5,
+    mode: 'auto',
+    count: 2,
+    sizes: [3, 13],
     groups: [],
     pool: [],
     edited: false,
@@ -124,7 +141,23 @@
            ' ' + p(d.getHours()) + ':' + p(d.getMinutes());
   }
 
-  /* ---------------- 名单与分组 ---------------- */
+  function clampSize(v) {
+    if (!isFinite(v) || v < 1) return 1;
+    if (v > 999) return 999;
+    return Math.floor(v);
+  }
+
+  function clampCount(v) {
+    if (!isFinite(v) || v < 1) return 1;
+    if (v > 99) return 99;
+    return Math.floor(v);
+  }
+
+  function sumSizes(list) {
+    return list.reduce(function (a, b) { return a + b; }, 0);
+  }
+
+  /* ---------------- 名单 ---------------- */
 
   function readRoster() {
     var parsed = dedupe(parseNames(el.names.value));
@@ -138,13 +171,14 @@
     updateHint();
   }
 
+  /* ---------------- 分组 ---------------- */
+
   function groupCountBySize(total, size) {
     return Math.max(1, Math.ceil(total / size));
   }
 
+  /* 模式 A：按每组人数 —— 洗牌后按每组人数成块切分 */
   function buildGroups(names, size) {
-    // 先整体洗牌，再按「每组人数」依次成块切分：
-    // 每组满 size 人，最后一组拿剩余的人，因此各组人数最多差 1。
     var shuffled = shuffle(names);
     var groups = [];
     for (var i = 0; i < shuffled.length; i += size) {
@@ -157,6 +191,22 @@
     return groups;
   }
 
+  /* 模式 B：按组数自定义 —— 第 1 组 n1 人、第 2 组 n2 人……依次填充 */
+  function buildCustomGroups(names, sizes) {
+    var shuffled = shuffle(names);
+    var groups = [];
+    var idx = 0;
+    sizes.forEach(function (size, i) {
+      groups.push({
+        id: ++uid,
+        name: '第 ' + (i + 1) + ' 组',
+        members: shuffled.slice(idx, idx + size)
+      });
+      idx += size;
+    });
+    return { groups: groups, rest: shuffled.slice(idx) };
+  }
+
   function doSplit() {
     readRoster();
     if (!state.names.length) {
@@ -164,10 +214,22 @@
       el.names.focus();
       return;
     }
-    state.size = clampSize(parseInt(el.size.value, 10) || state.size);
-    el.size.value = state.size;
-    state.groups = buildGroups(state.names, state.size);
-    state.pool = [];
+
+    if (state.mode === 'custom') {
+      var count = clampCount(parseInt(el.groupCount.value, 10) || state.count);
+      el.groupCount.value = count;
+      state.count = count;
+      syncSizes(count);
+      var built = buildCustomGroups(state.names, state.sizes);
+      state.groups = built.groups;
+      state.pool = built.rest;
+    } else {
+      state.size = clampSize(parseInt(el.size.value, 10) || state.size);
+      el.size.value = state.size;
+      state.groups = buildGroups(state.names, state.size);
+      state.pool = [];
+    }
+
     state.edited = false;
     state.hasResult = true;
     render();
@@ -176,10 +238,62 @@
     showToast('已分成 ' + state.groups.length + ' 组');
   }
 
-  function clampSize(v) {
-    if (!isFinite(v) || v < 1) return 1;
-    if (v > 999) return 999;
-    return Math.floor(v);
+  /* ---------------- 自定义每组人数面板 ---------------- */
+
+  function syncSizes(count) {
+    var sizes = state.sizes.slice(0, count);
+    while (sizes.length < count) sizes.push(0);
+    state.sizes = sizes;
+  }
+
+  function renderSizesList() {
+    var html = '';
+    for (var i = 0; i < state.count; i++) {
+      var v = state.sizes[i] == null ? 0 : state.sizes[i];
+      html += '<div class="size-row">' +
+        '<span class="size-dot" style="background:' + colorOf(i) + '"></span>' +
+        '<span class="size-row-label">第 ' + (i + 1) + ' 组</span>' +
+        '<input type="number" min="0" max="999" step="1" value="' + v + '" data-si="' + i + '" ' +
+        'inputmode="numeric" aria-label="第 ' + (i + 1) + ' 组人数" />' +
+        '</div>';
+    }
+    el.sizesList.innerHTML = html;
+    updateSizesTotal();
+  }
+
+  function updateSizesTotal() {
+    var total = sumSizes(state.sizes);
+    var n = state.names.length;
+    el.sizesTotal.className = 'sizes-total' + (n ? (total === n ? ' ok' : ' warn') : '');
+    el.sizesTotal.textContent = n
+      ? '已指定 ' + total + ' 人（名单 ' + n + ' 人）'
+      : '已指定 ' + total + ' 人';
+  }
+
+  function setMode(mode) {
+    state.mode = mode;
+    el.modeAuto.classList.toggle('is-active', mode === 'auto');
+    el.modeCustom.classList.toggle('is-active', mode === 'custom');
+    el.modeAuto.setAttribute('aria-selected', mode === 'auto' ? 'true' : 'false');
+    el.modeCustom.setAttribute('aria-selected', mode === 'custom' ? 'true' : 'false');
+    el.panelAuto.hidden = mode !== 'auto';
+    el.panelCustom.hidden = mode !== 'custom';
+    if (mode === 'custom') renderSizesList();
+    updateHint();
+  }
+
+  function evenSplit() {
+    var n = state.names.length;
+    if (!n) { showToast('请先输入名单'); return; }
+    var count = state.count;
+    var base = Math.floor(n / count);
+    var extra = n % count;
+    var sizes = [];
+    for (var i = 0; i < count; i++) sizes.push(base + (i < extra ? 1 : 0));
+    state.sizes = sizes;
+    renderSizesList();
+    updateHint();
+    persistCurrent();
   }
 
   /* ---------------- 渲染 ---------------- */
@@ -250,11 +364,17 @@
     el.historyEmpty.hidden = list.length > 0;
     el.history.innerHTML = list.map(function (h) {
       var n = h.total || 0;
-      var g = (h.groups || []).length;
+      var desc;
+      if (h.mode === 'custom') {
+        var ss = h.sizes || [];
+        desc = '共 <b>' + n + '</b> 人 · <b>' + ss.length + '</b> 组 · ' + ss.join(' + ') + ' 人';
+      } else {
+        desc = '共 <b>' + n + '</b> 人 · 每组 ' + esc(h.size) + ' 人 · <b>' + ((h.groups || []).length) + '</b> 组';
+      }
       return '<li class="history-item" data-hid="' + esc(h.id) + '">' +
         '<div class="history-meta">' +
           '<div class="history-time">' + fmtTime(h.ts) + '</div>' +
-          '<div class="history-desc">共 <b>' + n + '</b> 人 · 每组 ' + esc(h.size) + ' 人 · <b>' + g + '</b> 组</div>' +
+          '<div class="history-desc">' + desc + '</div>' +
         '</div>' +
         '<button type="button" class="btn btn-ghost btn-sm" data-act="restore" data-hid="' + esc(h.id) + '">恢复</button>' +
         '<button type="button" class="btn btn-ghost btn-sm" data-act="delHistory" data-hid="' + esc(h.id) + '">删除</button>' +
@@ -264,19 +384,36 @@
 
   function updateHint() {
     var n = state.names.length;
-    var size = state.size;
     el.countHint.innerHTML = '共 <b>' + n + '</b> 人' +
       (state.dup ? ' <span class="warn">（已去重 ' + state.dup + '）</span>' : '');
 
     if (!n) {
       el.setupHint.textContent = '输入名单后即可开始分组';
+      updateSizesTotal();
       return;
     }
-    var count = groupCountBySize(n, size);
+
+    if (state.mode === 'custom') {
+      var total = sumSizes(state.sizes);
+      var expr = state.sizes.join(' + ');
+      var head = '共 <b>' + n + '</b> 人 · <b>' + state.sizes.length + '</b> 组 · 指定 ' + expr + ' = ' + total + ' 人';
+      if (total === n) {
+        el.setupHint.innerHTML = head + ' ✓';
+      } else if (total > n) {
+        el.setupHint.innerHTML = head + ' <span class="hl">超出 ' + (total - n) + ' 人，后面的组会自动少分</span>';
+      } else {
+        el.setupHint.innerHTML = head + ' <span class="hl">还剩 ' + (n - total) + ' 人进入「未分组」</span>';
+      }
+      updateSizesTotal();
+      return;
+    }
+
+    var count = groupCountBySize(n, state.size);
     var sizes = [];
-    for (var i = 0; i < count; i++) sizes.push(Math.min(size, n - i * size));
-    el.setupHint.innerHTML = '共 <b>' + n + '</b> 人 · 每组 <span class="hl">' + size + '</span> 人 · 将分成 <b>' + count +
+    for (var i = 0; i < count; i++) sizes.push(Math.min(state.size, n - i * state.size));
+    el.setupHint.innerHTML = '共 <b>' + n + '</b> 人 · 每组 <span class="hl">' + state.size + '</span> 人 · 将分成 <b>' + count +
       '</b> 组（' + sizes.join(' / ') + ' 人）';
+    updateSizesTotal();
   }
 
   /* ---------------- 手动微调 ---------------- */
@@ -321,11 +458,11 @@
     state.groups.forEach(function (g, i) {
       if (i === gi) return;
       html += '<button type="button" class="move-opt" data-to="' + i + '">' +
-              '<span class="dot" style="background:' + colorOf(i) + ';color:' + colorOf(i) + '"></span>' + esc(g.name) +
+              '<span class="dot" style="background:' + colorOf(i) + '"></span>' + esc(g.name) +
               '</button>';
     });
     html += '<button type="button" class="move-opt" data-to="-1">' +
-            '<span class="dot" style="background:#ffe600;color:#ffe600"></span>未分组</button>';
+            '<span class="dot" style="background:#c99a00"></span>未分组</button>';
 
     el.pop.innerHTML = html;
     el.pop.hidden = false;
@@ -352,7 +489,9 @@
     var entry = {
       id: 'h' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
       ts: Date.now(),
+      mode: state.mode,
       size: state.size,
+      sizes: state.sizes.slice(),
       total: state.names.length,
       groups: state.groups.map(function (g) { return { name: g.name, members: g.members.slice() }; }),
       pool: state.pool.slice()
@@ -375,6 +514,17 @@
     state.size = h.size || state.size;
     el.size.value = state.size;
 
+    if (h.mode === 'custom') {
+      state.mode = 'custom';
+      state.sizes = (h.sizes || []).slice();
+      state.count = state.sizes.length || 2;
+      el.groupCount.value = state.count;
+      setMode('custom');
+    } else {
+      state.mode = 'auto';
+      setMode('auto');
+    }
+
     var all = [];
     state.groups.forEach(function (g) { all = all.concat(g.members); });
     all = all.concat(state.pool);
@@ -394,6 +544,9 @@
     save(LS.current, {
       names: state.names,
       size: state.size,
+      mode: state.mode,
+      count: state.count,
+      sizes: state.sizes.slice(),
       groups: state.groups.map(function (g) { return { name: g.name, members: g.members.slice() }; }),
       pool: state.pool.slice(),
       edited: state.edited
@@ -402,17 +555,27 @@
 
   function restoreCurrent() {
     var c = load(LS.current, null);
-    if (!c) return;
+    if (!c) {
+      renderSizesList();
+      return;
+    }
     state.names = c.names || [];
     state.size = c.size || 5;
+    state.mode = c.mode === 'custom' ? 'custom' : 'auto';
+    state.count = c.count || 2;
+    state.sizes = (c.sizes && c.sizes.length) ? c.sizes.slice() : [3, 13];
     state.groups = (c.groups || []).map(function (g) {
       return { id: ++uid, name: g.name, members: (g.members || []).slice() };
     });
     state.pool = c.pool || [];
     state.edited = !!c.edited;
     state.hasResult = state.groups.length > 0;
+
     el.names.value = state.names.join('\n');
     el.size.value = state.size;
+    el.groupCount.value = state.count;
+    syncSizes(state.count);
+    setMode(state.mode);
     updateHint();
     render();
   }
@@ -420,10 +583,10 @@
   /* ---------------- 复制 ---------------- */
 
   function buildText() {
-    var lines = ['分组派对 · 分组结果',
-                 '每组 ' + state.size + ' 人 · ' + state.groups.length + ' 组 · 共 ' + state.names.length + ' 人',
+    var lines = ['分组 · 分组结果',
+                 '共 ' + state.names.length + ' 人 · ' + state.groups.length + ' 组',
                  ''];
-    state.groups.forEach(function (g, i) {
+    state.groups.forEach(function (g) {
       lines.push('【' + g.name + '】（' + g.members.length + ' 人）');
       lines.push(g.members.length ? g.members.join('、') : '（空）');
       lines.push('');
@@ -488,6 +651,11 @@
     showToast('已清空');
   });
 
+  /* 模式切换 */
+  el.modeAuto.addEventListener('click', function () { setMode('auto'); persistCurrent(); });
+  el.modeCustom.addEventListener('click', function () { setMode('custom'); persistCurrent(); });
+
+  /* 模式 A：每组人数 */
   el.size.addEventListener('input', function () {
     state.size = clampSize(parseInt(el.size.value, 10) || 1);
     updateHint();
@@ -508,6 +676,49 @@
     state.size = parseInt(el.size.value, 10);
     updateHint();
   });
+
+  /* 模式 B：分组个数 */
+  el.groupCount.addEventListener('input', function () {
+    state.count = clampCount(parseInt(el.groupCount.value, 10) || 1);
+    syncSizes(state.count);
+    renderSizesList();
+    updateHint();
+  });
+  el.groupCount.addEventListener('change', function () {
+    state.count = clampCount(parseInt(el.groupCount.value, 10) || 1);
+    el.groupCount.value = state.count;
+    syncSizes(state.count);
+    renderSizesList();
+    updateHint();
+    persistCurrent();
+  });
+  el.countMinus.addEventListener('click', function () {
+    el.groupCount.value = clampCount(state.count - 1);
+    state.count = parseInt(el.groupCount.value, 10);
+    syncSizes(state.count);
+    renderSizesList();
+    updateHint();
+  });
+  el.countPlus.addEventListener('click', function () {
+    el.groupCount.value = clampCount(state.count + 1);
+    state.count = parseInt(el.groupCount.value, 10);
+    syncSizes(state.count);
+    renderSizesList();
+    updateHint();
+  });
+
+  /* 模式 B：每组人数（不重建列表，避免输入时失焦） */
+  el.sizesList.addEventListener('input', function (e) {
+    var input = e.target.closest('input[data-si]');
+    if (!input) return;
+    var i = parseInt(input.getAttribute('data-si'), 10);
+    var v = parseInt(input.value, 10);
+    state.sizes[i] = (!isFinite(v) || v < 0) ? 0 : Math.min(999, v);
+    updateSizesTotal();
+    updateHint();
+  });
+
+  el.evenBtn.addEventListener('click', evenSplit);
 
   el.split.addEventListener('click', doSplit);
   el.reshuffle.addEventListener('click', doSplit);

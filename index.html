@@ -10,7 +10,7 @@
 <meta property="og:description" content="输入名单，设置每组人数，一键随机洗牌分组。" />
 <meta property="og:type" content="website" />
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>" />
-<link rel="stylesheet" href="styles.css?v=3" />
+<link rel="stylesheet" href="styles.css?v=4" />
 </head>
 <body>
 <div class="bg-grid" aria-hidden="true"></div>
@@ -50,14 +50,41 @@
     <section class="card" aria-labelledby="t-setup">
       <h2 class="card-title" id="t-setup"><span class="step">02</span>分组设置</h2>
 
-      <label class="field" for="groupSize">
-        <span class="field-label">每组人数</span>
-        <span class="field-ctrl">
-          <button type="button" class="step-btn" id="sizeMinus" aria-label="每组人数减一">−</button>
-          <input type="number" id="groupSize" min="1" max="999" step="1" value="5" inputmode="numeric" aria-label="每组人数" />
-          <button type="button" class="step-btn" id="sizePlus" aria-label="每组人数加一">+</button>
-        </span>
-      </label>
+      <div class="mode-switch" role="tablist" aria-label="分组模式">
+        <button type="button" class="mode-btn is-active" id="modeAuto" data-mode="auto" role="tab" aria-selected="true">按每组人数</button>
+        <button type="button" class="mode-btn" id="modeCustom" data-mode="custom" role="tab" aria-selected="false">按组数自定义</button>
+      </div>
+
+      <div class="mode-panel" id="panelAuto">
+        <label class="field" for="groupSize">
+          <span class="field-label">每组人数</span>
+          <span class="field-ctrl">
+            <button type="button" class="step-btn" id="sizeMinus" aria-label="每组人数减一">−</button>
+            <input type="number" id="groupSize" min="1" max="999" step="1" value="5" inputmode="numeric" aria-label="每组人数" />
+            <button type="button" class="step-btn" id="sizePlus" aria-label="每组人数加一">+</button>
+          </span>
+        </label>
+      </div>
+
+      <div class="mode-panel" id="panelCustom" hidden>
+        <label class="field" for="groupCount">
+          <span class="field-label">分组个数</span>
+          <span class="field-ctrl">
+            <button type="button" class="step-btn" id="countMinus" aria-label="分组个数减一">−</button>
+            <input type="number" id="groupCount" min="1" max="99" step="1" value="2" inputmode="numeric" aria-label="分组个数" />
+            <button type="button" class="step-btn" id="countPlus" aria-label="分组个数加一">+</button>
+          </span>
+        </label>
+
+        <div class="sizes-box">
+          <div class="sizes-head">
+            <span class="sizes-title">每组人数</span>
+            <button type="button" class="btn btn-ghost btn-sm" id="evenBtn">平均分配</button>
+          </div>
+          <div class="sizes-list" id="sizesList"></div>
+          <p class="sizes-total" id="sizesTotal"></p>
+        </div>
+      </div>
 
       <p class="setup-hint" id="setupHint">输入名单后即可开始分组</p>
 
@@ -81,7 +108,7 @@
       </h2>
       <p class="result-flag" id="resultFlag" hidden>已手动微调</p>
       <div class="groups" id="groups"></div>
-      <p class="result-empty" id="resultEmpty">还没有分组结果 · 在左侧设置每组人数后点击「开始分组」</p>
+      <p class="result-empty" id="resultEmpty">还没有分组结果 · 在左侧设置分组方式后点击「开始分组」</p>
     </section>
 
     <!-- 历史 -->
@@ -105,6 +132,6 @@
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <div class="move-pop" id="movePop" hidden></div>
 
-<script src="app.js?v=3"></script>
+<script src="app.js?v=4"></script>
 </body>
 </html>

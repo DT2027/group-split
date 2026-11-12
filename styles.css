@@ -371,6 +371,100 @@ kbd {
   background: rgba(30, 18, 70, .05);
 }
 
+/* ---------- 模式切换 ---------- */
+.mode-switch {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  padding: 4px;
+  margin-bottom: 14px;
+  border-radius: 14px;
+  background: rgba(30, 18, 70, .06);
+  border: 1px solid rgba(30, 18, 70, .08);
+}
+
+.mode-btn {
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  padding: 9px 8px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: .18s;
+}
+.mode-btn:hover { color: var(--txt); }
+.mode-btn.is-active {
+  color: #fff;
+  background: linear-gradient(120deg, var(--pink), var(--violet));
+  box-shadow: 0 4px 14px rgba(124, 58, 237, .28);
+}
+
+.mode-panel { animation: fadeIn .25s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: none; } }
+
+/* ---------- 自定义每组人数 ---------- */
+.sizes-box {
+  margin-top: 12px;
+  padding: 12px 13px;
+  border-radius: 14px;
+  border: 1px solid rgba(30, 18, 70, .10);
+  background: linear-gradient(120deg, rgba(240, 24, 127, .07), rgba(0, 146, 199, .06));
+}
+
+.sizes-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.sizes-title { font-weight: 700; letter-spacing: .06em; font-size: 14px; }
+
+.sizes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  max-height: 208px;
+  overflow-y: auto;
+  padding-right: 2px;
+}
+
+.size-row { display: flex; align-items: center; gap: 9px; }
+
+.size-dot { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+
+.size-row-label {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.size-row input[type="number"] {
+  width: 72px;
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--violet);
+  padding: 5px 4px;
+}
+
+.sizes-total {
+  margin: 10px 0 0;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--muted);
+}
+.sizes-total.ok { color: var(--lime-ink); }
+.sizes-total.warn { color: var(--orange); }
+
 /* ---------- 分组结果 ---------- */
 .result-flag {
   display: inline-block;
