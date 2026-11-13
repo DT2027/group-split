@@ -912,6 +912,121 @@ kbd {
   font-weight: 600;
 }
 
+/* ============================================================
+   卧底页 · UNDER//COVER
+   ============================================================ */
+.brand-logo-spy {
+  background: linear-gradient(135deg, var(--violet), var(--fuchsia) 55%, var(--pink));
+  box-shadow: 0 6px 20px rgba(124, 58, 237, .3);
+}
+
+.spy-step {
+  background: linear-gradient(120deg, var(--violet), var(--fuchsia));
+  color: #fff;
+  box-shadow: 0 3px 10px rgba(124, 58, 237, .3);
+}
+
+/* 每组卧底词表 */
+.slot-card {
+  padding: 12px 13px 11px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, .72);
+  margin-bottom: 10px;
+}
+.slot-card.is-bad {
+  border-color: rgba(240, 100, 0, .38);
+  background: rgba(255, 245, 236, .8);
+}
+
+.slot-head { display: flex; align-items: center; gap: 9px; margin-bottom: 9px; }
+.slot-total {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.slot-total.is-ok { color: var(--lime-ink); background: rgba(126, 168, 0, .13); }
+.slot-total.is-bad { color: var(--orange); background: rgba(240, 100, 0, .13); }
+
+.slot-cols,
+.slot-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 74px 30px;
+  gap: 8px;
+  align-items: center;
+}
+.slot-cols {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: .12em;
+  color: var(--muted);
+  padding: 0 2px 5px;
+}
+.slot-rows { display: flex; flex-direction: column; gap: 7px; }
+
+.slot-word,
+.slot-count {
+  width: 100%;
+  padding: 9px 11px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: #fff;
+  font-size: 14px;
+  color: var(--txt);
+  font-family: var(--sans);
+}
+.slot-word::placeholder { color: rgba(109, 107, 145, .58); font-size: 12.5px; }
+.slot-count { font-family: var(--mono); font-size: 13.5px; text-align: center; }
+.slot-word:focus,
+.slot-count:focus {
+  outline: none;
+  border-color: var(--violet);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, .13);
+}
+
+.slot-del {
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--muted);
+  font-size: 13px;
+  cursor: pointer;
+  transition: color .18s, border-color .18s, background .18s;
+}
+.slot-del:hover { color: var(--pink); border-color: var(--pink); background: rgba(240, 24, 127, .07); }
+
+.slot-foot { display: flex; align-items: center; gap: 10px; margin-top: 9px; }
+.slot-tip { font-size: 11.5px; color: var(--muted); font-family: var(--mono); }
+
+/* 预览里的档位汇总 */
+.preview-slots {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--muted);
+  padding-bottom: 6px;
+  margin-bottom: 6px;
+  border-bottom: 1px dashed color-mix(in srgb, var(--c) 22%, transparent);
+}
+
+/* 空白牌 */
+.word-text.is-blank {
+  background: none;
+  -webkit-text-fill-color: var(--muted);
+  color: var(--muted);
+  font-size: 28px;
+  letter-spacing: .1em;
+  border: 1.5px dashed rgba(109, 107, 145, .38);
+  border-radius: 14px;
+  padding: 16px 10px;
+  margin: 12px 0 10px;
+}
+.pv-word.is-blank { color: var(--muted); opacity: .85; }
+
 /* ---------- 响应式 ---------- */
 @media (max-width: 560px) {
   .site-header { padding: 20px 14px 4px; }
